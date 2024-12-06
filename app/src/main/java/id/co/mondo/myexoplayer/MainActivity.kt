@@ -1,5 +1,6 @@
 package id.co.mondo.myexoplayer
 
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -7,6 +8,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.MoreExecutors
 import id.co.mondo.myexoplayer.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +35,16 @@ class MainActivity : AppCompatActivity() {
 
         hideSystemUI()
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(this, ComponentName(this, PlaybackService::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            { binding.playerView.player = controllerFuture.get() },
+            MoreExecutors.directExecutor()
+        )
     }
 
     private fun hideSystemUI() {
